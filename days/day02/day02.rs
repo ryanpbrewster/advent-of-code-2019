@@ -1,4 +1,4 @@
-use std::fs;
+extern crate files;
 
 #[test]
 fn part1_smoke() {
@@ -9,8 +9,7 @@ fn part1_smoke() {
 
 #[test]
 fn part1() {
-    let contents = fs::read_to_string("days/day02/input.txt").expect("read input file");
-    let tape = contents
+    let tape = files::read!("input.txt")
         .split(',')
         .map(|s| s.trim().parse::<usize>().expect("parse usize"))
         .collect();
@@ -23,8 +22,7 @@ fn part1() {
 
 #[test]
 fn part2() {
-    let contents = fs::read_to_string("days/day02/input.txt").expect("read input file");
-    let tape = contents
+    let tape = files::read!("input.txt")
         .split(',')
         .map(|s| s.trim().parse::<usize>().expect("parse usize"))
         .collect();

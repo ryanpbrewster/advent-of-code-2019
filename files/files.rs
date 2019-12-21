@@ -1,14 +1,8 @@
-use std::path::PathBuf;
-
-macro_rules! relpath {
+#[macro_export]
+macro_rules! read {
     ($filename:literal) => {{
-        let mut path = PathBuf::from(file!());
+        let mut path = std::path::PathBuf::from(file!());
         path.set_file_name($filename);
-        path
+        std::fs::read_to_string(path).expect("read input file")
     }};
-}
-
-#[test]
-fn dir_smoke_test() {
-    assert_eq!(relpath!("foo.txt").to_string_lossy(), "files/foo.txt");
 }

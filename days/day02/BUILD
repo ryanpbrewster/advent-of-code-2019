@@ -4,6 +4,9 @@ rust_test(
     name = "day02",
     srcs = glob(["*.rs"]),
     data = [":input"],
+    deps = [
+        "//files",
+    ],
 )
 
 filegroup(

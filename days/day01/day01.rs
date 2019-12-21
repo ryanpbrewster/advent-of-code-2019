@@ -1,9 +1,8 @@
-use std::fs;
+extern crate files;
 
 #[test]
 fn part1() {
-    let contents = fs::read_to_string("days/day01/input.txt").expect("read input file");
-    let total_fuel: i32 = contents
+    let total_fuel: i32 = files::read!("input.txt")
         .lines()
         .map(|s| fuel_for_module(s.parse().expect("parse line as i32")))
         .sum();
@@ -19,8 +18,7 @@ fn part2_smoke() {
 
 #[test]
 fn part2() {
-    let contents = fs::read_to_string("days/day01/input.txt").expect("read input file");
-    let total_fuel: i32 = contents
+    let total_fuel: i32 = files::read!("input.txt")
         .lines()
         .map(|s| meta_fuel_for_module(s.parse().expect("parse line as i32")))
         .sum();
