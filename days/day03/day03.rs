@@ -1,6 +1,6 @@
 extern crate files;
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
 #[test]
@@ -20,17 +20,51 @@ fn part1() {
     let mut lines = contents.lines();
     let wire1 = lines.next().expect("line 1").parse().expect("parse wire");
     let wire2 = lines.next().expect("line 2").parse().expect("parse wire");
-    assert_eq!(closest_crossing(wire1, wire2), Some(159));
+    assert_eq!(closest_crossing(wire1, wire2), Some(651));
+}
+
+#[test]
+fn part2_smoke() {
+    let wire1 = "R75,D30,R83,U83,L12,D49,R71,U7,L72"
+        .parse()
+        .expect("parse wire");
+    let wire2 = "U62,R66,U55,R34,D71,R55,D58,R83"
+        .parse()
+        .expect("parse wire");
+    assert_eq!(earliest_crossing(wire1, wire2), Some(610));
+}
+
+#[test]
+fn part2() {
+    let contents = files::read!("input.txt");
+    let mut lines = contents.lines();
+    let wire1 = lines.next().expect("line 1").parse().expect("parse wire");
+    let wire2 = lines.next().expect("line 2").parse().expect("parse wire");
+    assert_eq!(earliest_crossing(wire1, wire2), Some(7534));
 }
 
 fn closest_crossing(w1: Wire, w2: Wire) -> Option<usize> {
-    let mut pts = crossings(w1, w2);
-    pts.remove(&Point(0, 0));
-    pts.into_iter().map(|p| p.l0()).min()
+    let w1: HashSet<Point> = w1.path().into_iter().collect();
+    let w2: HashSet<Point> = w2.path().into_iter().collect();
+    w1.intersection(&w2).map(|p| p.l0()).min()
 }
 
-fn crossings(w1: Wire, w2: Wire) -> HashSet<Point> {
-    w1.cover().intersection(&w2.cover()).cloned().collect()
+fn earliest_crossing(w1: Wire, w2: Wire) -> Option<usize> {
+    let path1: HashMap<Point, usize> = w1
+        .path()
+        .into_iter()
+        .enumerate()
+        .map(|(idx, p)| (p, idx))
+        .collect();
+    w2.path()
+        .into_iter()
+        .enumerate()
+        .flat_map(|(i2, pt)| {
+            path1
+                .get(&pt)
+                .map(|i1| i1 + i2 + 2 /* enumerate is 0-indexed */)
+        })
+        .min()
 }
 
 struct Wire {
@@ -47,7 +81,7 @@ enum Direction {
     Left,
     Right,
 }
-#[derive(Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
 struct Point(i32, i32);
 impl Point {
     fn new() -> Point {
@@ -88,14 +122,13 @@ impl FromStr for Wire {
     }
 }
 impl Wire {
-    fn cover(&self) -> HashSet<Point> {
-        let mut points = HashSet::new();
+    fn path(&self) -> Vec<Point> {
+        let mut points = Vec::new();
         let mut p = Point::new();
-        points.insert(p);
         for segment in &self.segments {
             for _ in 0..segment.len {
                 p.step(segment.dir);
-                points.insert(p);
+                points.push(p);
             }
         }
         points
